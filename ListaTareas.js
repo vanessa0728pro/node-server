@@ -8,36 +8,42 @@ const rl = readline.createInterface({
 const tareas = [];
 
 function agregarTarea() {
-  rl.question("Indicador: ", (indicador) => {
-    rl.question("Descripción: ", (descripcion) => {
-      tareas.push({ indicador, descripcion, completada: false });
-      console.log("Tarea agregada exitosamente.");
-      mostrarMenu();
+  return new Promise((resolve) => {
+    rl.question("Indicador: ", (indicador) => {
+      rl.question("Descripción: ", (descripcion) => {
+        tareas.push({ indicador, descripcion, completada: false });
+        console.log("Tarea agregada exitosamente.");
+        resolve();
+      });
     });
   });
 }
 
 function eliminarTarea() {
-  rl.question("Índice de la tarea a eliminar: ", (indice) => {
-    if (indice >= 0 && indice < tareas.length) {
-      tareas.splice(indice, 1);
-      console.log("Tarea eliminada exitosamente.");
-    } else {
-      console.log("Índice inválido.");
-    }
-    mostrarMenu();
+  return new Promise((resolve) => {
+    rl.question("Índice de la tarea a eliminar: ", (indice) => {
+      if (indice >= 0 && indice < tareas.length) {
+        tareas.splice(indice, 1);
+        console.log("Tarea eliminada exitosamente.");
+      } else {
+        console.log("Índice inválido.");
+      }
+      resolve();
+    });
   });
 }
 
 function completarTarea() {
-  rl.question("Índice de la tarea completada: ", (indice) => {
-    if (indice >= 0 && indice < tareas.length) {
-      tareas[indice].completada = true;
-      console.log("Tarea completada.");
-    } else {
-      console.log("Índice inválido.");
-    }
-    mostrarMenu();
+  return new Promise((resolve) => {
+    rl.question("Índice de la tarea completada: ", (indice) => {
+      if (indice >= 0 && indice < tareas.length) {
+        tareas[indice].completada = true;
+        console.log("Tarea completada.");
+      } else {
+        console.log("Índice inválido.");
+      }
+      resolve();
+    });
   });
 }
 
@@ -50,10 +56,9 @@ function mostrarTareas() {
       }`
     );
   });
-  mostrarMenu();
 }
 
-function mostrarMenu() {
+async function mostrarMenu() {
   console.log("\n== Menú ==");
   console.log("1. Agregar tarea");
   console.log("2. Eliminar tarea");
@@ -61,29 +66,33 @@ function mostrarMenu() {
   console.log("4. Mostrar tareas");
   console.log("5. Salir");
 
-  rl.question("Seleccione una opción: ", (opcion) => {
-    switch (opcion) {
-      case "1":
-        agregarTarea();
-        break;
-      case "2":
-        eliminarTarea();
-        break;
-      case "3":
-        completarTarea();
-        break;
-      case "4":
-        mostrarTareas();
-        break;
-      case "5":
-        rl.close();
-        break;
-      default:
-        console.log("Opción inválida.");
-        mostrarMenu();
-        break;
-    }
+  const opcion = await new Promise((resolve) => {
+    rl.question("Seleccione una opción: ", (input) => {
+      resolve(input);
+    });
   });
+
+  switch (opcion) {
+    case "1":
+      await agregarTarea();
+      break;
+    case "2":
+      await eliminarTarea();
+      break;
+    case "3":
+      await completarTarea();
+      break;
+    case "4":
+      mostrarTareas();
+      break;
+    case "5":
+      rl.close();
+      return;
+    default:
+      console.log("Opción inválida.");
+  }
+
+  await mostrarMenu();
 }
 
 mostrarMenu();
